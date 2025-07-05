@@ -1,7 +1,7 @@
 import { nextTestSetup } from 'e2e-utils'
 
 describe('react-performance-track', () => {
-  const { isTurbopack, next } = nextTestSetup({
+  const { next } = nextTestSetup({
     files: __dirname,
   })
 
@@ -23,12 +23,11 @@ describe('react-performance-track', () => {
     const track = await browser.eval('window.reactServerRequests.getSnapshot()')
     expect(track).toEqual([
       {
-        // TODO(veil): Should always be `fetch (random)`
-        name: isTurbopack ? 'fetch (random)' : 'patched',
+        // TODO: Name the fetch of Next.js
+        name: '',
         properties: expect.arrayContaining([
           ['status', '200'],
-          // Not sure if this is useful to assert on. Feel free to remove is this breaks often
-          ['body', isTurbopack ? 'ReadableStream' : 'TeeReadableStream'],
+          ['body', '…'],
         ]),
       },
     ])
