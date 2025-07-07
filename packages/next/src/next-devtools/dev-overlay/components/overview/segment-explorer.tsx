@@ -11,6 +11,7 @@ import {
 import { Tooltip } from '../../../components/tooltip'
 import { useRef, useState, useCallback, useMemo } from 'react'
 import {
+  BOUNDARY_PREFIX,
   BUILTIN_PREFIX,
   getBoundaryOriginFileType,
   isBoundaryFile,
@@ -45,7 +46,7 @@ function countActiveBoundaries(node: SegmentTrieNode): number {
   if (
     node.value?.setBoundaryType &&
     node.value.boundaryType !== null &&
-    !node.value.type.startsWith('boundary:')
+    !isBoundaryFile(node.value.type)
   ) {
     count++
   }
@@ -180,6 +181,12 @@ function PageSegmentTreeLayerPresentation({
       if (aType === 'template' && bType !== 'template') return -1
       if (aType !== 'template' && bType === 'template') return 1
 
+      // non boundary files are prioritized than boundary files
+      if (aType && bType) {
+        if (isBoundaryFile(aType) && !isBoundaryFile(bType)) return 1
+        if (!isBoundaryFile(aType) && isBoundaryFile(bType)) return -1
+      }
+
       // If both are the same type, sort by pagePath
       const aFilePath = node.children[a]?.value?.pagePath || ''
       const bFilePath = node.children[b]?.value?.pagePath || ''
@@ -243,7 +250,7 @@ function PageSegmentTreeLayerPresentation({
       if (!childNode || !childNode.value) return true
       const type = childNode.value.type
       const selectedBoundaryType = firstChild?.value?.type?.replace(
-        'boundary:',
+        BOUNDARY_PREFIX,
         ''
       )
       if (
@@ -286,20 +293,25 @@ function PageSegmentTreeLayerPresentation({
               {/* display all the file segments in this level */}
               {filesChildrenKeysBesidesSelectedBoundary.length > 0 && (
                 <span className="segment-explorer-files">
-                  {filesChildrenKeys.map((fileChildSegment) => {
-                    const childNode = node.children[fileChildSegment]
-                    if (!childNode || !childNode.value) {
-                      return null
-                    }
-                    // If it's boundary node, which marks the existence of the boundary not the rendered status,
-                    // we don't need to present in the rendered files.
-                    if (isBoundaryFile(childNode.value.type)) {
-                      return null
-                    }
-                    const filePath = childNode.value.pagePath
-                    const lastSegment = filePath.split('/').pop() || ''
-                    const isBuiltin = filePath.startsWith(BUILTIN_PREFIX)
-                    const fileName = normalizeBoundaryFilename(lastSegment)
+                  {filesChildrenKeysBesidesSelectedBoundary.map(
+                    (fileChildSegment) => {
+                      const childNode = node.children[fileChildSegment]
+                      if (!childNode || !childNode.value) {
+                        return null
+                      }
+                      // If it's boundary node, which marks the existence of the boundary not the rendered status,
+                      // we don't need to present in the rendered files.
+                      if (isBoundaryFile(childNode.value.type)) {
+                        return null
+                      }
+                      // If it's a page file, don't show it as a separate label since it's represented by the dropdown button
+                      if (childNode.value.type === 'page') {
+                        return null
+                      }
+                      const filePath = childNode.value.pagePath
+                      const lastSegment = filePath.split('/').pop() || ''
+                      const isBuiltin = filePath.startsWith(BUILTIN_PREFIX)
+                      const fileName = normalizeBoundaryFilename(lastSegment)
 
                       const tooltipMessage = isBuiltin
                         ? `The default Next.js ${childNode.value.type} is being shown. You can customize this page by adding your own ${fileName} file to the app/ directory.`
