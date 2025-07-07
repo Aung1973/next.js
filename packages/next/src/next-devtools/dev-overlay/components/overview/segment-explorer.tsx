@@ -17,6 +17,7 @@ import {
   isBoundaryFile,
   normalizeBoundaryFilename,
 } from '../../../../server/app-render/segment-explorer-path'
+import { ExternalIcon } from '../../icons/external'
 
 const isFileNode = (node: SegmentTrieNode) => {
   return !!node.value?.type && !!node.value?.pagePath
@@ -315,7 +316,7 @@ function PageSegmentTreeLayerPresentation({
 
                       const tooltipMessage = isBuiltin
                         ? `The default Next.js ${childNode.value.type} is being shown. You can customize this page by adding your own ${fileName} file to the app/ directory.`
-                        : `Open in editor`
+                        : null // `Open in editor`
 
                       return (
                         <Tooltip
@@ -345,7 +346,7 @@ function PageSegmentTreeLayerPresentation({
                             }}
                           >
                             {fileName}
-                            {isBuiltin && <InfoIcon />}
+                            {isBuiltin ? <InfoIcon /> : <ExternalIcon />}
                           </span>
                         </Tooltip>
                       )
