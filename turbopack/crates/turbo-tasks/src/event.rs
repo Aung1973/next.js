@@ -72,10 +72,10 @@ impl Event {
             description: self.description.clone(),
             note: Arc::new(String::new),
             future: Some(Box::pin(timeout(
-                Duration::from_secs(60),
+                Duration::from_secs(30),
                 self.event.listen(),
             ))),
-            duration: Duration::from_secs(60),
+            duration: Duration::from_secs(30),
         }
     }
 
@@ -88,10 +88,10 @@ impl Event {
             description: self.description.clone(),
             note: Arc::new(note),
             future: Some(Box::pin(timeout(
-                Duration::from_secs(60),
+                Duration::from_secs(30),
                 self.event.listen(),
             ))),
-            duration: Duration::from_secs(60),
+            duration: Duration::from_secs(30),
         }
     }
 
