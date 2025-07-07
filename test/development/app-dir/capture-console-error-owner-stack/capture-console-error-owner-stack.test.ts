@@ -105,7 +105,7 @@ describe('app-dir - capture-console-error-owner-stack', () => {
     await expect(browser).toDisplayCollapsedRedbox(`
      {
        "description": "boom",
-       "environmentLabel": "Server",
+       "environmentLabel": "${process.env.__NEXT_EXPERIMENTAL_CACHE_COMPONENTS === 'true' ? 'Prerender' : 'Server'}",
        "label": "Console Error",
        "source": "app/rsc/page.js (2:17) @ Page
      > 2 |   console.error(new Error('boom'))

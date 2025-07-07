@@ -24,7 +24,7 @@ describe('Error overlay - RSC runtime errors', () => {
     await expect(browser).toDisplayRedbox(`
      {
        "description": "useState only works in Client Components. Add the "use client" directive at the top of the file to use it. Read more: https://nextjs.org/docs/messages/react-client-hook-in-server-component",
-       "environmentLabel": "Server",
+       "environmentLabel": "${process.env.__NEXT_EXPERIMENTAL_CACHE_COMPONENTS === 'true' ? 'Prerender' : 'Server'}",
        "label": "Runtime TypeError",
        "source": "app/server/page.js (3:16) @ Page
      > 3 |   callClientApi()
@@ -98,7 +98,7 @@ describe('Error overlay - RSC runtime errors', () => {
     await expect(browser).toDisplayRedbox(`
      {
        "description": "alert is not defined",
-       "environmentLabel": "Server",
+       "environmentLabel": "${process.env.__NEXT_EXPERIMENTAL_CACHE_COMPONENTS === 'true' ? 'Prerender' : 'Server'}",
        "label": "Runtime ReferenceError",
        "source": "app/server/page.js (2:16) @ Page
      > 2 |   return <div>{alert('warn')}</div>

@@ -11,7 +11,7 @@ describe('serialize-circular-error', () => {
     await expect(browser).toDisplayRedbox(`
      {
        "description": "An error occurred but serializing the error message failed.",
-       "environmentLabel": "Server",
+       "environmentLabel": "${process.env.__NEXT_EXPERIMENTAL_CACHE_COMPONENTS === 'true' ? 'Prerender' : 'Server'}",
        "label": "Runtime Error",
        "source": null,
        "stack": [],
