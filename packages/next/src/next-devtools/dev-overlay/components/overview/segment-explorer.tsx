@@ -245,7 +245,7 @@ function PageSegmentTreeLayerPresentation({
     }
   })
 
-  const filesChildrenKeysBesidesSelectedBoundary = filesChildrenKeys.filter(
+  const filesChildrenKeysBesidesSelectedBoundary = sortedChildrenKeys.filter(
     (childKey) => {
       const childNode = node.children[childKey]
       if (!childNode || !childNode.value) return true
@@ -500,6 +500,7 @@ export const DEV_TOOLS_INFO_RENDER_FILES_STYLES = css`
     background-color: transparent;
     color: var(--color-gray-900);
     border: 1px dashed var(--color-gray-500);
+    height: 24px;
     cursor: default;
   }
   .segment-explorer-file-label--builtin svg {

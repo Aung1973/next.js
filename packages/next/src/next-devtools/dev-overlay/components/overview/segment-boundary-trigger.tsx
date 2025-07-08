@@ -80,6 +80,7 @@ export function SegmentBoundaryTrigger({
       ? fileName // Show the selected boundary file name when overridden
       : fileName || `page.${possibleExtension}`
   )
+  const isPageOrBoundary = fileType && !isBoundary
 
   const triggerOptions = [
     {
@@ -100,10 +101,10 @@ export function SegmentBoundaryTrigger({
       icon: <NotFoundIcon />,
       disabled: !boundaries['not-found'],
     },
-  ]
+  ].filter((option) => option.label !== pageFileName)
 
   const resetOption = {
-    label: 'Reset',
+    label: pageFileName,
     value: 'reset',
     icon: <ResetIcon />,
   }
@@ -120,7 +121,6 @@ export function SegmentBoundaryTrigger({
   const hasBoundaries = Object.values(boundaries).some(
     (boundary) => boundary !== null
   )
-  const isPageOrBoundary = fileType && !isBoundaryFile(fileType)
 
   const openInEditor = useCallback(({ filePath }: { filePath: string }) => {
     const params = new URLSearchParams({
@@ -187,7 +187,7 @@ export function SegmentBoundaryTrigger({
         <span className="segment-boundary-trigger-text">
           {isPageOrBoundary
             ? pageFileName
-            : boundaryType === null
+            : boundaryType === null && !isBoundary
               ? // TODO(pran): improve the UX of the default boundary selector
                 'boundary'
               : pageFileName}
