@@ -22,20 +22,29 @@ const composeRefs = (...refs: (React.Ref<HTMLButtonElement> | undefined)[]) => {
 }
 
 export function SegmentBoundaryTrigger({
-  onSelectBoundary,
-  offset,
+  nodeState,
   boundaries,
-  pagePath,
-  fileType,
-  boundaryType,
+  // onSelectBoundary,
+  // pagePath,
+  // fileType,
+  // boundaryType,
 }: {
-  onSelectBoundary: SegmentNodeState['setBoundaryType']
-  offset: number
+  nodeState: SegmentNodeState
   boundaries: Record<'not-found' | 'loading' | 'error', string | null>
-  fileType: string
-  pagePath: string
-  boundaryType: string | null
+  // onSelectBoundary: SegmentNodeState['setBoundaryType']
+  // fileType: string
+  // pagePath: string
+  // boundaryType: string | null
 }) {
+  const currNode = nodeState
+  const {
+    pagePath,
+    boundaryType,
+    type,
+    setBoundaryType: onSelectBoundary,
+  } = currNode
+  const fileType = type
+
   const [isOpen, setIsOpen] = useState(false)
   const [shadowRoot] = useState<ShadowRoot>(() => {
     const ownerDocument = document
@@ -64,9 +73,9 @@ export function SegmentBoundaryTrigger({
 
   const fileNames = useMemo(() => {
     return Object.fromEntries(
-      Object.entries(boundaries).map(([key, value]) => {
+      Object.entries(boundaries).map(([key, filePath]) => {
         const fileName = normalizeBoundaryFilename(
-          value || `${key}.${possibleExtension}`
+          (filePath || '').split('/').pop() || `${key}.${possibleExtension}`
         )
         return [key, fileName]
       })
@@ -76,10 +85,11 @@ export function SegmentBoundaryTrigger({
   const fileName = (pagePath || '').split('/').pop() || ''
   const isBoundary = isBoundaryFile(fileType)
   const pageFileName = normalizeBoundaryFilename(
-    isBoundary
+    boundaryType
       ? fileName // Show the selected boundary file name when overridden
       : fileName || `page.${possibleExtension}`
   )
+
   const isPageOrBoundary = fileType && !isBoundary
 
   const triggerOptions = [
@@ -101,10 +111,10 @@ export function SegmentBoundaryTrigger({
       icon: <NotFoundIcon />,
       disabled: !boundaries['not-found'],
     },
-  ].filter((option) => option.label !== pageFileName)
+  ]
 
   const resetOption = {
-    label: pageFileName,
+    label: boundaryType ? pageFileName : 'Reset',
     value: 'reset',
     icon: <ResetIcon />,
   }
@@ -185,12 +195,7 @@ export function SegmentBoundaryTrigger({
     return (
       <button {...triggerProps} ref={mergedRef} type="button">
         <span className="segment-boundary-trigger-text">
-          {isPageOrBoundary
-            ? pageFileName
-            : boundaryType === null && !isBoundary
-              ? // TODO(pran): improve the UX of the default boundary selector
-                'boundary'
-              : pageFileName}
+          {isBoundary && !boundaryType ? 'boundary' : pageFileName}
         </span>
         <ChevronDownIcon />
       </button>
@@ -217,7 +222,7 @@ export function SegmentBoundaryTrigger({
           className="segment-boundary-dropdown-positioner"
           side="bottom"
           align="center"
-          sideOffset={offset}
+          sideOffset={6}
           arrowPadding={8}
           ref={popupRef}
         >

@@ -164,36 +164,42 @@ function PageSegmentTreeLayerPresentation({
   const childrenKeys = Object.keys(node.children)
 
   const sortedChildrenKeys = childrenKeys.sort((a, b) => {
-    // Prioritize if it's a file convention like layout or page,
-    // then the rest parallel routes.
+    // Prioritize files with extensions over directories
     const aHasExt = a.includes('.')
     const bHasExt = b.includes('.')
     if (aHasExt && !bHasExt) return -1
     if (!aHasExt && bHasExt) return 1
-    // Otherwise sort alphabetically
 
-    // If it's file, sort by order: layout > template > page
+    // For files, sort by priority: layout > template > page > boundaries > others
     if (aHasExt && bHasExt) {
       const aType = node.children[a]?.value?.type
       const bType = node.children[b]?.value?.type
 
-      if (aType === 'layout' && bType !== 'layout') return -1
-      if (aType !== 'layout' && bType === 'layout') return 1
-      if (aType === 'template' && bType !== 'template') return -1
-      if (aType !== 'template' && bType === 'template') return 1
-
-      // non boundary files are prioritized than boundary files
-      if (aType && bType) {
-        if (isBoundaryFile(aType) && !isBoundaryFile(bType)) return 1
-        if (!isBoundaryFile(aType) && isBoundaryFile(bType)) return -1
+      // Define priority order
+      const getTypePriority = (type: string | undefined): number => {
+        if (!type) return 5
+        if (type === 'layout') return 1
+        if (type === 'template') return 2
+        if (type === 'page') return 3
+        if (isBoundaryFile(type)) return 4
+        return 5
       }
 
-      // If both are the same type, sort by pagePath
+      const aPriority = getTypePriority(aType)
+      const bPriority = getTypePriority(bType)
+
+      // Sort by priority first
+      if (aPriority !== bPriority) {
+        return aPriority - bPriority
+      }
+
+      // If same priority, sort by file path
       const aFilePath = node.children[a]?.value?.pagePath || ''
       const bFilePath = node.children[b]?.value?.pagePath || ''
       return aFilePath.localeCompare(bFilePath)
     }
 
+    // For directories, sort alphabetically
     return a.localeCompare(b)
   })
 
@@ -202,7 +208,6 @@ function PageSegmentTreeLayerPresentation({
 
   const folderChildrenKeys: string[] = []
   const filesChildrenKeys: string[] = []
-  let firstChild = null
 
   for (const childKey of sortedChildrenKeys) {
     const childNode = node.children[childKey]
@@ -218,12 +223,29 @@ function PageSegmentTreeLayerPresentation({
     folderChildrenKeys.push(childKey)
   }
 
-  for (const fileChildSegment of filesChildrenKeys) {
-    const childNode = node.children[fileChildSegment]
+  let firstChild = null
+
+  for (let i = sortedChildrenKeys.length - 1; i >= 0; i--) {
+    const childNode = node.children[sortedChildrenKeys[i]]
     if (!childNode || !childNode.value) continue
 
-    firstChild = childNode
+    const isBoundary = isBoundaryFile(childNode.value.type)
+
+    if (!firstChild && !isBoundary) {
+      firstChild = childNode
+      break
+    }
   }
+  let firstBoundaryChild = null
+  for (const childKey of sortedChildrenKeys) {
+    const childNode = node.children[childKey]
+    if (!childNode || !childNode.value) continue
+    if (isBoundaryFile(childNode.value.type)) {
+      firstBoundaryChild = childNode
+      break
+    }
+  }
+  firstChild = firstChild || firstBoundaryChild
 
   const hasFilesChildren = filesChildrenKeys.length > 0
   const boundaries: Record<'not-found' | 'loading' | 'error', string | null> = {
@@ -245,7 +267,7 @@ function PageSegmentTreeLayerPresentation({
     }
   })
 
-  const filesChildrenKeysBesidesSelectedBoundary = sortedChildrenKeys.filter(
+  const filesChildrenKeysBesidesSelectedBoundary = filesChildrenKeys.filter(
     (childKey) => {
       const childNode = node.children[childKey]
       if (!childNode || !childNode.value) return true
@@ -305,8 +327,11 @@ function PageSegmentTreeLayerPresentation({
                       if (isBoundaryFile(childNode.value.type)) {
                         return null
                       }
-                      // If it's a page file, don't show it as a separate label since it's represented by the dropdown button
-                      if (childNode.value.type === 'page') {
+                      // If it's a page/default file, don't show it as a separate label since it's represented by the dropdown button
+                      if (
+                        childNode.value.type === 'page' ||
+                        childNode.value.type === 'default'
+                      ) {
                         return null
                       }
                       const filePath = childNode.value.pagePath
@@ -316,7 +341,7 @@ function PageSegmentTreeLayerPresentation({
 
                       const tooltipMessage = isBuiltin
                         ? `The default Next.js ${childNode.value.type} is being shown. You can customize this page by adding your own ${fileName} file to the app/ directory.`
-                        : null // `Open in editor`
+                        : null
 
                       return (
                         <Tooltip
@@ -354,18 +379,17 @@ function PageSegmentTreeLayerPresentation({
                   )}
                 </span>
               )}
-
               {firstChild &&
                 firstChild.value &&
                 firstChild.value.type !== 'layout' &&
                 firstChild.value.type !== 'template' && (
                   <SegmentBoundaryTrigger
-                    offset={6}
-                    onSelectBoundary={firstChild.value.setBoundaryType}
+                    nodeState={firstChild?.value || null}
                     boundaries={boundaries}
-                    pagePath={firstChild.value.pagePath}
-                    boundaryType={firstChild.value.boundaryType}
-                    fileType={firstChild.value.type}
+                    // onSelectBoundary={firstChild.value.setBoundaryType}
+                    // pagePath={firstChild.value.pagePath}
+                    // boundaryType={firstChild.value.boundaryType}
+                    // fileType={firstChild.value.type}
                   />
                 )}
             </div>
