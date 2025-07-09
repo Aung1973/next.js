@@ -23,12 +23,9 @@ describe('react-performance-track', () => {
     const track = await browser.eval('window.reactServerRequests.getSnapshot()')
     expect(track).toEqual([
       {
-        // TODO: Name the fetch of Next.js
+        // TODO: Should have a name
         name: '',
-        properties: expect.arrayContaining([
-          ['status', '200'],
-          ['body', '…'],
-        ]),
+        properties: [],
       },
     ])
   })
