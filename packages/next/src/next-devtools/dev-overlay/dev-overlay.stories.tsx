@@ -49,7 +49,7 @@ export const Default: Story = {
     const [state, dispatch] = useStorybookOverlayReducer(initialState)
     return (
       <>
-      {/* get lots of real hard examples so we have better debug flows */}
+        {/* get lots of real hard examples so we have better debug */}
         <img
           src={imgApp}
           style={{
@@ -96,12 +96,12 @@ export const WithPanel: Story = {
           }}
         />
         <DevOverlay
-          state={state}
-          dispatch={dispatch}
-          getSquashedHydrationErrorDetails={
-            // Testing like App Router where we no longer quash hydration errors
-            getNoSquashedHydrationErrorDetails
-          }
+        // state={state}
+        // dispatch={dispatch}
+        // getSquashedHydrationErrorDetails={
+        //   // Testing like App Router where we no longer quash hydration errors
+        //   getNoSquashedHydrationErrorDetails
+        // }
         />
       </>
     )

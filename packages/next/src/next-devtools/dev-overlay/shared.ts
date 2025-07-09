@@ -49,7 +49,7 @@ export interface OverlayState {
   isErrorOverlayOpen: boolean
   isDevToolsPanelOpen: boolean
   devToolsPosition: Corners
-  devToolsPanelPosition: Corners | null
+  devToolsPanelPosition: Corners
   scale: number
   page: string
 }
@@ -177,7 +177,7 @@ export interface DevToolsIndicatorPositionAction {
 
 export interface DevToolsPanelPositionAction {
   type: typeof ACTION_DEVTOOLS_PANEL_POSITION
-  devToolsPanelPosition: Corners | null
+  devToolsPanelPosition: Corners
 }
 
 export interface DevToolsScaleAction {
@@ -243,13 +243,21 @@ const shouldDisableDevIndicator =
 function getStoredPosition(): Corners {
   if (typeof localStorage !== 'undefined') {
     const stored = localStorage.getItem(STORAGE_KEY_POSITION)
-    if (stored && ['top-left', 'top-right', 'bottom-left', 'bottom-right'].includes(stored)) {
+    if (
+      stored &&
+      ['top-left', 'top-right', 'bottom-left', 'bottom-right'].includes(stored)
+    ) {
       return stored as Corners
     }
   }
   // Check for env var fallback
   const envPosition = process.env.__NEXT_DEV_INDICATOR_POSITION
-  if (envPosition && ['top-left', 'top-right', 'bottom-left', 'bottom-right'].includes(envPosition)) {
+  if (
+    envPosition &&
+    ['top-left', 'top-right', 'bottom-left', 'bottom-right'].includes(
+      envPosition
+    )
+  ) {
     return envPosition as Corners
   }
   return 'bottom-left'
@@ -258,7 +266,10 @@ function getStoredPosition(): Corners {
 function getStoredPanelPosition(): Corners | null {
   if (typeof localStorage !== 'undefined') {
     const stored = localStorage.getItem(STORAGE_KEY_PANEL_POSITION)
-    if (stored && ['top-left', 'top-right', 'bottom-left', 'bottom-right'].includes(stored)) {
+    if (
+      stored &&
+      ['top-left', 'top-right', 'bottom-left', 'bottom-right'].includes(stored)
+    ) {
       return stored as Corners
     }
   }
@@ -289,7 +300,7 @@ export const INITIAL_OVERLAY_STATE: Omit<
   isDevToolsPanelOpen: false,
   showRestartServerButton: false,
   devToolsPosition: getStoredPosition(),
-  devToolsPanelPosition: getStoredPanelPosition(),
+  devToolsPanelPosition: getStoredPanelPosition() ?? 'bottom-left',
   scale: NEXT_DEV_TOOLS_SCALE.Medium,
   page: '',
 }
@@ -467,7 +478,10 @@ export function useErrorOverlayReducer(
           return { ...state, devToolsPosition: action.devToolsPosition }
         }
         case ACTION_DEVTOOLS_PANEL_POSITION: {
-          return { ...state, devToolsPanelPosition: action.devToolsPanelPosition }
+          return {
+            ...state,
+            devToolsPanelPosition: action.devToolsPanelPosition,
+          }
         }
         case ACTION_DEVTOOLS_SCALE: {
           return { ...state, scale: action.scale }

@@ -29,7 +29,7 @@ import { useDevOverlayContext } from '../dev-overlay.browser'
 import { PanelRouter } from './menu/panel-router'
 import { PanelContext, type PanelStateKind } from './menu/context'
 
-const RenderErrorContext = createContext<{
+export const RenderErrorContext = createContext<{
   runtimeErrors: ReadyRuntimeError[]
   totalErrorCount: number
 }>(null!)
@@ -55,6 +55,7 @@ export function DevOverlay() {
     }
     setIsPrevBuildError(isBuildError)
   }
+  // stupid state same thing
   const [panel, setPanel] = useState<PanelStateKind | null>(null)
   const [open, setOpen] = useState<Overlays | null>(null)
 

@@ -5,6 +5,7 @@ import { useDelayedRender } from '../hooks/use-delayed-render'
 import GearIcon from '../icons/gear-icon'
 import { ACTION_ERROR_OVERLAY_OPEN } from '../shared'
 import { MenuContext, usePanelContext } from './context'
+import { useState } from 'react'
 import { MenuItem } from './menu-item'
 
 /**
@@ -26,6 +27,16 @@ export const DevtoolMenu = () => {
     }
   )
   const [vertical, horizontal] = state.devToolsPosition.split('-', 2)
+
+  // Local UI state for keyboard/hover selection in the menu – mirrors original pop-over behaviour
+  const [selectedIndex, setSelectedIndex] = useState(-1)
+
+  function closeMenu() {
+    // Close only when we are on the root selector – keeps onClick panel changes intact
+    setPanel((prev) => (prev === 'panel-selector' ? null : prev))
+    // reset selection after the fade-out period
+    setTimeout(() => setSelectedIndex(-1), MENU_DURATION_MS)
+  }
 
   return menuMounted ? (
     <div
@@ -62,11 +73,9 @@ export const DevtoolMenu = () => {
       {/* this provider should be higher in tree? eh maybe not */}
       <MenuContext
         value={{
-          // pass as context as source of truth when needed, or just stuff state
-          // here that doesn't need to be scoped
-          closeMenu: () => {},
-          selectedIndex: -1,
-          setSelectedIndex: () => {},
+          closeMenu,
+          selectedIndex,
+          setSelectedIndex,
         }}
       >
         <div className="dev-tools-indicator-inner">

@@ -1,5 +1,6 @@
 import type { Corners } from '../../../shared'
 import { useCallback, useLayoutEffect, useRef } from 'react'
+import { useDragContext } from './drag-context'
 
 interface Point {
   x: number
@@ -38,6 +39,7 @@ export function Draggable({
 }) {
   const { ref, animate, ...drag } = useDrag({
     disabled: disableDrag,
+    handles: useDragContext()?.handles,
     threshold: 5,
     onDragStart,
     onDragEnd,
@@ -101,44 +103,44 @@ export function Draggable({
       const isRight = corner.includes('right')
       const isBottom = corner.includes('bottom')
 
-      return {
-        x: isRight
-          ? window.innerWidth - scrollbarWidth - offset - triggerWidth
-          : 0,
-        y: isBottom ? window.innerHeight - offset - triggerHeight : 0,
+      // Base positions flush against the chosen corner
+      let x = isRight
+        ? window.innerWidth - scrollbarWidth - offset - triggerWidth
+        : 0
+      let y = isBottom ? window.innerHeight - offset - triggerHeight : 0
+
+      // Apply avoidZone offset if this corner is occupied. We only move along
+      // the vertical axis to keep the panel within the viewport. For bottom
+      // corners we move the panel up, for top corners we move it down.
+      if (avoidZone && avoidZone.corner === corner) {
+        const delta = avoidZone.square + avoidZone.padding
+        if (isBottom) {
+          // move up
+          y -= delta
+        } else {
+          // move down
+          y += delta
+        }
       }
+
+      return { x, y }
     }
 
     const basePosition = getAbsolutePosition(currentCorner)
 
-    // Calculate all corner positions relative to the current corner
+    // Helper to compute relative translation from the current corner.
+    function rel(pos: Point): Point {
+      return {
+        x: pos.x - basePosition.x,
+        y: pos.y - basePosition.y,
+      }
+    }
+
     return {
-      'top-left': {
-        x: 0 - basePosition.x,
-        y: 0 - basePosition.y,
-      },
-      'top-right': {
-        x:
-          window.innerWidth -
-          scrollbarWidth -
-          offset -
-          triggerWidth -
-          basePosition.x,
-        y: 0 - basePosition.y,
-      },
-      'bottom-left': {
-        x: 0 - basePosition.x,
-        y: window.innerHeight - offset - triggerHeight - basePosition.y,
-      },
-      'bottom-right': {
-        x:
-          window.innerWidth -
-          scrollbarWidth -
-          offset -
-          triggerWidth -
-          basePosition.x,
-        y: window.innerHeight - offset - triggerHeight - basePosition.y,
-      },
+      'top-left': rel(getAbsolutePosition('top-left')),
+      'top-right': rel(getAbsolutePosition('top-right')),
+      'bottom-left': rel(getAbsolutePosition('bottom-left')),
+      'bottom-right': rel(getAbsolutePosition('bottom-right')),
     }
   }
 
@@ -163,6 +165,7 @@ interface UseDragOptions {
   onAnimationEnd?: (corner: Corner) => void
   threshold: number // Minimum movement before drag starts
   dragHandleSelector?: string
+  handles?: Set<HTMLElement>
 }
 
 interface Velocity {
@@ -247,32 +250,35 @@ export function useDrag(options: UseDragOptions) {
   }
 
   function isValidDragHandle(target: EventTarget | null): boolean {
-    if (!options.dragHandleSelector || !ref.current || !target) {
-      return true // If no selector provided, entire element is draggable
-    }
+    if (!target || !ref.current) return true
 
-    const element = target as Element
-    // if (!element.matches) {
-    //   return false
-    // }
-
-    // Check if the target element directly matches the drag handle selector
-    // This excludes children elements, only allowing drag from the exact element
-
-    // // NEW allow drag from everywhere, need to narrow this later
-    // if (element.matches(options.dragHandleSelector)) {
-    //   return true
-    // }
-
-    let parent = element.parentElement
-    while (parent && parent !== ref.current) {
-      if (parent.matches && parent.matches(options.dragHandleSelector)) {
-        return true
+    // Priority 1: explicit handles set via context
+    if (options.handles && options.handles.size > 0) {
+      let node: HTMLElement | null = target as HTMLElement
+      while (node && node !== ref.current) {
+        if (options.handles.has(node)) return true
+        node = node.parentElement
       }
-      parent = parent.parentElement
+      return false
     }
 
-    return false
+    // Fallback to selector if provided
+    if (options.dragHandleSelector) {
+      const selector = options.dragHandleSelector
+      const element = target as Element
+      if (element.matches && element.matches(selector)) return true
+      let parent = element.parentElement
+      while (parent && parent !== ref.current) {
+        if (parent.matches && parent.matches(selector)) {
+          return true
+        }
+        parent = parent.parentElement
+      }
+      return false
+    }
+
+    // No restrictions
+    return true
   }
 
   function onPointerDown(e: React.PointerEvent) {
@@ -280,10 +286,10 @@ export function useDrag(options: UseDragOptions) {
       return // ignore right click
     }
 
-    // Check if the pointer down event is on a valid drag handle
-    // if (!isValidDragHandle(e.target)) {
-    //   return
-    // }
+    // Restrict drag initiation to valid handles if any registered
+    if (!isValidDragHandle(e.target)) {
+      return
+    }
 
     origin.current = { x: e.clientX, y: e.clientY }
     machine.current = { state: 'press' }
@@ -353,6 +359,14 @@ export function useDrag(options: UseDragOptions) {
 
     // TODO: This is the onDragEnd when the pointerdown event was fired not the onDragEnd when the pointerup event was fired
     options.onDragEnd?.(translation.current, velocity)
+  }
+
+  // Expose pointer handler only when drag is enabled to fully disable dragging.
+  if (options.disabled) {
+    return {
+      ref,
+      animate,
+    }
   }
 
   return {

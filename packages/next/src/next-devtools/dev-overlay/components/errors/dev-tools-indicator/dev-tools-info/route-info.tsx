@@ -111,13 +111,24 @@ const learnMoreLink = {
   },
 } as const
 
+export function RouteInfoBody() {
+  const { state } = useDevOverlayContext()
+
+  const isStaticRoute = state.staticIndicator
+
+  return isStaticRoute ? (
+    <StaticRouteContent routerType={state.routerType} />
+  ) : (
+    <DynamicRouteContent routerType={state.routerType} />
+  )
+}
+
 export function RouteInfo() {
   const { state } = useDevOverlayContext()
 
   const routeType = state.staticIndicator ? 'Static' : 'Dynamic'
-  const isStaticRoute = routeType === 'Static'
 
-  const learnMore = isStaticRoute
+  const learnMore = state.staticIndicator
     ? learnMoreLink[state.routerType].static
     : learnMoreLink[state.routerType].dynamic
 
@@ -125,17 +136,11 @@ export function RouteInfo() {
     <DevToolsInfo
       title={`${routeType} Route`}
       learnMoreLink={learnMore}
-      // {...props}
-      // these are tbd need to look at the og component how its used
       close={() => {}}
       isOpen={true}
       triggerRef={{ current: null }}
     >
-      {isStaticRoute ? (
-        <StaticRouteContent routerType={state.routerType} />
-      ) : (
-        <DynamicRouteContent routerType={state.routerType} />
-      )}
+      <RouteInfoBody />
     </DevToolsInfo>
   )
 }

@@ -122,6 +122,7 @@ export function DevToolsPanel({
         [horizontal === 'left' ? 'right' : 'left']: 'auto',
       }
     : {}
+
   return (
     <ResizeProvider
       value={{
@@ -147,12 +148,6 @@ export function DevToolsPanel({
         />
 
         <Draggable
-          // logoCorner={state.devToolsPosition}
-          avoidZone={{
-            corner: state.devToolsPosition,
-            square: 20, // todo don't hard code these and they are probably wrong too
-            padding: 8,
-          }}
           style={{
             overflow: 'auto',
           }}
@@ -274,14 +269,38 @@ export function DevToolsPanel({
 
             {!isFullscreen && (
               <>
-                <ResizeHandle direction="top" />
-                <ResizeHandle direction="right" />
-                <ResizeHandle direction="bottom" />
-                <ResizeHandle direction="left" />
-                <ResizeHandle direction="top-left" />
-                <ResizeHandle direction="top-right" />
-                <ResizeHandle direction="bottom-left" />
-                <ResizeHandle direction="bottom-right" />
+                <ResizeHandle
+                  position={state.devToolsPanelPosition}
+                  direction="top"
+                />
+                <ResizeHandle
+                  position={state.devToolsPanelPosition}
+                  direction="right"
+                />
+                <ResizeHandle
+                  position={state.devToolsPanelPosition}
+                  direction="bottom"
+                />
+                <ResizeHandle
+                  position={state.devToolsPanelPosition}
+                  direction="left"
+                />
+                <ResizeHandle
+                  position={state.devToolsPanelPosition}
+                  direction="top-left"
+                />
+                <ResizeHandle
+                  position={state.devToolsPanelPosition}
+                  direction="top-right"
+                />
+                <ResizeHandle
+                  position={state.devToolsPanelPosition}
+                  direction="bottom-left"
+                />
+                <ResizeHandle
+                  position={state.devToolsPanelPosition}
+                  direction="bottom-right"
+                />
               </>
             )}
           </>
