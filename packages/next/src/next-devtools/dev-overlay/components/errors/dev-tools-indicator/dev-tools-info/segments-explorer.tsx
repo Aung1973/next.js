@@ -14,6 +14,7 @@ export function SegmentsExplorer({
   return (
     <DevToolsInfo title="Route Info" {...props}>
       <div data-nextjs-segments-explorer>
+        {/* @ts-expect-error */}
         <PageSegmentTree isAppRouter={isAppRouter} page={page} />
       </div>
     </DevToolsInfo>

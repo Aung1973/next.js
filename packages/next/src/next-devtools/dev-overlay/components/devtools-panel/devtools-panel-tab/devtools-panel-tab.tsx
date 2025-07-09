@@ -37,6 +37,7 @@ export function DevToolsPanelTab({
     case 'settings':
       return (
         <SettingsTab
+          // @ts-expect-error
           devToolsPosition={devToolsPosition}
           scale={scale}
           handlePositionChange={handlePositionChange}

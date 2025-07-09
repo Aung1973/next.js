@@ -1,5 +1,5 @@
 import type { StorybookConfig } from '@storybook/react-webpack5'
-import { join, dirname,resolve } from 'path'
+import { join, dirname, resolve } from 'path'
 /**
  * This function is used to resolve the absolute path of a package.
  * It is needed in projects that use Yarn PnP or are set up within a monorepo.
@@ -47,7 +47,12 @@ const config: StorybookConfig = {
       return false
     })
 
-    if (cssRule && typeof cssRule === 'object' && 'use' in cssRule && Array.isArray(cssRule.use)) {
+    if (
+      cssRule &&
+      typeof cssRule === 'object' &&
+      'use' in cssRule &&
+      Array.isArray(cssRule.use)
+    ) {
       // Find the style-loader in the use array
       const styleLoaderIndex = cssRule.use.findIndex((loader) => {
         if (typeof loader === 'string') return loader.includes('style-loader')
@@ -63,7 +68,10 @@ const config: StorybookConfig = {
           loader: require.resolve('style-loader'),
           options: {
             injectType: 'styleTag',
-            insert: resolve(__dirname, '../src/build/webpack/loaders/devtool/devtool-style-inject.js'),
+            insert: resolve(
+              __dirname,
+              '../src/build/webpack/loaders/devtool/devtool-style-inject.js'
+            ),
           },
         }
       }

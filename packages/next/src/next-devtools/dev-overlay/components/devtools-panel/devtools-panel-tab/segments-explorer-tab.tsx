@@ -8,6 +8,7 @@ function SegmentsExplorer({
   page: string
 }) {
   const isAppRouter = routerType === 'app'
+  // @ts-expect-error
   return <PageSegmentTree isAppRouter={isAppRouter} page={page} />
 }
 
