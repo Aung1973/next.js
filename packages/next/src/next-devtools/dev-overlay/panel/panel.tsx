@@ -1,11 +1,11 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { useDevOverlayContext } from '../../dev-overlay.browser'
 import { ResizeProvider } from '../components/devtools-panel/resize/resize-provider'
 import { usePanelContext } from '../menu/context'
 import { Overlay } from '../components/overlay'
 import { INDICATOR_PADDING } from '../components/devtools-indicator/devtools-indicator'
 import { Draggable } from '../components/errors/dev-tools-indicator/draggable'
-import { ACTION_DEVTOOLS_POSITION, STORAGE_KEY_POSITION } from '../shared'
+import { ACTION_DEVTOOLS_PANEL_POSITION, ACTION_DEVTOOLS_POSITION, STORAGE_KEY_PANEL_POSITION } from '../shared'
 import {
   Dialog,
   DialogBody,
@@ -33,35 +33,34 @@ export function DevOverlayPanel({
     }
     setPrevIsErrorOverlayOpen(state.isErrorOverlayOpen)
   }
+  const panelPosition = state.devToolsPanelPosition || state.devToolsPosition
 
-  const [vertical, horizontal] = state.devToolsPosition.split('-', 2)
+  // Use panel position if set, otherwise default to near the indicator
+  // const panelPosition = state.devToolsPanelPosition || state.devToolsPosition
+  const [vertical, horizontal] = panelPosition.split('-', 2)
   const resizeRef = useRef<HTMLDivElement>(null)
-  const onCloseDevToolsPanel = () => {
-    // dispatch({ type: ACTION_DEVTOOLS_PANEL_CLOSE })
-    // dispatch({ type: ACTION_ERROR_OVERLAY_CLOSE })
-  }
-
-  // const handlePositionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   dispatch({
-  //     type: ACTION_DEVTOOLS_POSITION,
-  //     devToolsPosition: e.target.value as Corners,
-  //   })
-  //   localStorage.setItem(STORAGE_KEY_POSITION, e.target.value)
-  // }
-
-  // was this for the settings? will need to sync later
-  // const handleScaleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   dispatch({
-  //     type: ACTION_DEVTOOLS_SCALE,
-  //     scale: Number(e.target.value),
-  //   })
-  //   localStorage.setItem(STORAGE_KEY_SCALE, e.target.value)
-  // }
-
-  // const handleFullscreenToggle = () => {
-  //   setIsFullscreen((prev: any) => !prev)
-  //   dispatch({ type: ACTION_ERROR_OVERLAY_CLOSE })
-  // }
+  // const [dimensions, setDimensions] = useState(() => {
+  //   // Get saved dimensions or use defaults
+  //   const saved = localStorage.getItem('nextjs-devtools-dimensions')
+  //   if (saved) {
+  //     try {
+  //       const parsed = JSON.parse(saved)
+  //       return { width: parsed.width || 400, height: parsed.height || 350 }
+  //     } catch (e) {}
+  //   }
+  //   return { width: 400, height: 350 }
+  // })
+  
+  // // Use effect to get the Draggable's container element after mount
+  // useEffect(() => {
+  //   const draggableElement = document.querySelector('[data-fuck-shit]') as HTMLDivElement
+  //   if (draggableElement && resizeRef.current !== draggableElement) {
+  //     resizeRef.current = draggableElement
+  //     console.log('Set resize ref to draggable element:', draggableElement)
+  //   } else {
+  //     console.log('Could not find draggable element or ref already set')
+  //   }
+  // })
 
   const positionStyle =
     `${vertical}-${horizontal}` === 'bottom-left'
@@ -107,9 +106,9 @@ export function DevOverlayPanel({
           data-nextjs-devtools-panel-draggable
           padding={INDICATOR_PADDING}
           onDragStart={() => {}}
-          position={state.devToolsPosition}
+          position={panelPosition}
           setPosition={(p) => {
-            localStorage.setItem(STORAGE_KEY_POSITION, p)
+            localStorage.setItem(STORAGE_KEY_PANEL_POSITION, p)
             dispatch({
               type: ACTION_DEVTOOLS_POSITION,
               devToolsPosition: p,
