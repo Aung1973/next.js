@@ -101,10 +101,11 @@ export const PanelRouter = () => {
           name="segment-explorer"
           sizeConfig={{
             kind: 'resizable',
-            maxHeight: '95vh',
-            maxWidth: '95vw',
-            minHeight: '200px',
-            minWidth: '200px',
+            // todo till refactor for strings
+            maxHeight: 1500,
+            maxWidth: 1500,
+            minHeight: 200,
+            minWidth: 200,
           }}
           header={
             <DevToolsHeader
