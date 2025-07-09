@@ -50,11 +50,29 @@ export function DevToolsInfo({
       role="dialog"
       ref={ref}
       data-element-shit
-      data-info-popover
+      // data-info-popover
       {...props}
       data-rendered={rendered}
       style={{
         // height: '100%'
+        WebkitFontSmoothing: 'antialiased',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        // background: 'var(--color-background-100)',
+        // border: '1px solid var(--color-gray-alpha-400)',
+        // backgroundClip: 'padding-box',
+        boxShadow: 'var(--shadow-menu)',
+        borderRadius: 'var(--rounded-xl)',
+        position: 'absolute',
+        fontFamily: 'var(--font-stack-sans)',
+        zIndex: 3,
+        overflow: 'hidden',
+        opacity: rendered ? 1 : 0,
+        outline: 0,
+        minWidth: '350px',
+        transition: 'opacity var(--animate-out-duration-ms) var(--animate-out-timing-function)',
+        scale: rendered ? 1 : undefined,
       }}
     >
       <div className="dev-tools-info-container">

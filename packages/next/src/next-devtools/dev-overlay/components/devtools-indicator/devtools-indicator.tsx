@@ -33,6 +33,7 @@ export function DevToolsIndicator() {
   return (
     // what is this toast doing??
     // why are u hiding my precious
+    // get rid of this toast wtf is this
     <Toast
       data-nextjs-toast
       style={

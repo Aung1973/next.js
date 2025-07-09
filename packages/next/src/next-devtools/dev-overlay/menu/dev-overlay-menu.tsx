@@ -25,6 +25,7 @@ export const DevtoolMenu = () => {
       exitDelay: MENU_DURATION_MS,
     }
   )
+  const [vertical, horizontal] = state.devToolsPosition.split('-', 2)
 
   return menuMounted ? (
     <div
@@ -40,10 +41,22 @@ export const DevtoolMenu = () => {
       // todo reimpl this
       // onKeyDown={onMenuKeydown}
       data-rendered={menuRendered}
+      // style={{
+      //   // this is probably totally broken, hold up
+      //   bottom: 'calc(100% + 8px)',
+      //   left: '8px', // maybe fixed now?
+
+      // }}
       style={{
-        // this is probably totally broken, hold up
-        bottom: 'calc(100% + 8px)',
-        left: '8px', // maybe fixed now?
+        border: '2px solid var(--color-gray-200)',
+        // fix calcs they are wrong
+        position: 'absolute',
+        ...(vertical === 'bottom'
+          ? { bottom: 'calc(100% + 65px)' }
+          : { top: 'calc(100% + 20px)' }),
+        ...(horizontal === 'left'
+          ? { left: '20px' }
+          : { right: '8px', left: 'auto' }),
       }}
     >
       {/* this provider should be higher in tree? eh maybe not */}

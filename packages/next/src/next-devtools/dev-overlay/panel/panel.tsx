@@ -5,21 +5,23 @@ import { usePanelContext } from '../menu/context'
 import { Overlay } from '../components/overlay'
 import { INDICATOR_PADDING } from '../components/devtools-indicator/devtools-indicator'
 import { Draggable } from '../components/errors/dev-tools-indicator/draggable'
-import { ACTION_DEVTOOLS_PANEL_POSITION, ACTION_DEVTOOLS_POSITION, STORAGE_KEY_PANEL_POSITION } from '../shared'
 import {
-  Dialog,
-  DialogBody,
-  DialogContent,
-  DialogHeader,
-} from '../components/dialog'
+  ACTION_DEVTOOLS_PANEL_POSITION,
+  ACTION_DEVTOOLS_POSITION,
+  STORAGE_KEY_PANEL_POSITION,
+} from '../shared'
 import { ResizeHandle } from '../components/devtools-panel/resize/resize-handle'
 
-export function DevOverlayPanel({
+export function DevtoolPanel({
   header,
   children,
+  draggable = true,
+  resizable = true,
 }: {
   header: React.ReactNode
   children: React.ReactNode
+  draggable?: boolean
+  resizable?: boolean
 }) {
   // might need this, we will see
   const [prevIsErrorOverlayOpen, setPrevIsErrorOverlayOpen] = useState(false)
@@ -39,30 +41,9 @@ export function DevOverlayPanel({
   // const panelPosition = state.devToolsPanelPosition || state.devToolsPosition
   const [vertical, horizontal] = panelPosition.split('-', 2)
   const resizeRef = useRef<HTMLDivElement>(null)
-  // const [dimensions, setDimensions] = useState(() => {
-  //   // Get saved dimensions or use defaults
-  //   const saved = localStorage.getItem('nextjs-devtools-dimensions')
-  //   if (saved) {
-  //     try {
-  //       const parsed = JSON.parse(saved)
-  //       return { width: parsed.width || 400, height: parsed.height || 350 }
-  //     } catch (e) {}
-  //   }
-  //   return { width: 400, height: 350 }
-  // })
-  
-  // // Use effect to get the Draggable's container element after mount
-  // useEffect(() => {
-  //   const draggableElement = document.querySelector('[data-fuck-shit]') as HTMLDivElement
-  //   if (draggableElement && resizeRef.current !== draggableElement) {
-  //     resizeRef.current = draggableElement
-  //     console.log('Set resize ref to draggable element:', draggableElement)
-  //   } else {
-  //     console.log('Could not find draggable element or ref already set')
-  //   }
-  // })
 
   const positionStyle =
+  // hard coded cause testing
     `${vertical}-${horizontal}` === 'bottom-left'
       ? {
           bottom: '65px',
@@ -91,15 +72,14 @@ export function DevOverlayPanel({
         data-nextjs-devtools-panel-overlay
         data-nextjs-dialog-overlay
         data-gaga
-        // mf does this do anything, this does -> calc(100% + 8px)
         style={{
           ...positionStyle,
           minWidth: '400px',
           minHeight: '350px',
           maxHeight: '1000px',
           maxWidth: '1000px',
-          width: '100%',
-          height: '100%',
+   
+    
         }}
       >
         <Draggable
@@ -110,72 +90,53 @@ export function DevOverlayPanel({
           setPosition={(p) => {
             localStorage.setItem(STORAGE_KEY_PANEL_POSITION, p)
             dispatch({
-              type: ACTION_DEVTOOLS_POSITION,
-              devToolsPosition: p,
+              type: ACTION_DEVTOOLS_PANEL_POSITION,
+              devToolsPanelPosition: p,
             })
           }}
           dragHandleSelector="[data-nextjs-devtools-panel-header], [data-nextjs-devtools-panel-footer], [data-nextjs-devtools-panel-draggable]"
           style={{
             // so many border radius ah
-            borderRadius: 'var(--rounded-xl)',
+            // borderRadius: 'var(--rounded-xl)',
             overflow: 'auto',
           }}
-          // disableDrag={isFullscreen} <-- this will be useful later
+          disableDrag={!draggable}
         >
           <>
             <div
               style={{
+                // width: '100%',
+                // height: '100%',
+                position: 'relative',
+                // background: ' var(--color-background-200)',
+                // borderRadius: 'var(--rounded-xl)',
                 width: '100%',
                 height: '100%',
-                position: 'relative',
-                background: ' var(--color-background-200)',
-                borderRadius: 'var(--rounded-xl)',
+                border: "2px solid var(--color-gray-200)",
+                borderRadius: "var(--rounded-xl)",
+                background: "var(--color-background-200)",
+                       overflow: 'auto'
               }}
             >
+              {/* todo: render header better */}
+              {header}
               {children}
             </div>
-            <ResizeHandle direction="top" />
-            <ResizeHandle direction="right" />
-            <ResizeHandle direction="bottom" />
-            <ResizeHandle direction="left" />
-            <ResizeHandle direction="top-left" />
-            <ResizeHandle direction="top-right" />
-            <ResizeHandle direction="bottom-left" />
-            <ResizeHandle direction="bottom-right" />
+            {resizable && (
+              <>
+                <ResizeHandle direction="top" />
+                <ResizeHandle direction="right" />
+                <ResizeHandle direction="bottom" />
+                <ResizeHandle direction="left" />
+                <ResizeHandle direction="top-left" />
+                <ResizeHandle direction="top-right" />
+                <ResizeHandle direction="bottom-left" />
+                <ResizeHandle direction="bottom-right" />
+              </>
+            )}
           </>
         </Draggable>
       </div>
     </ResizeProvider>
   )
 }
-
-// {/* what is overlay doing?? */}
-// {/* i dont know if we need an overlay at all ,what is an overlay in this context? wut */}
-// <Overlay
-// ref={resizeRef}
-// data-nextjs-devtools-panel-overlay
-// style={
-//   `${vertical}-${horizontal}` === 'bottom-left'
-//       ? {
-//           bottom: '40px',
-//           // right: INDICATOR_PADDING,
-//           top: 'auto',
-//           right: 'auto',
-//         }
-//       : {
-//           [vertical]: `${INDICATOR_PADDING}px`,
-//           [horizontal]: `${INDICATOR_PADDING}px`,
-//           [vertical === 'top' ? 'bottom' : 'top']: 'auto',
-//           [horizontal === 'left' ? 'right' : 'left']: 'auto',
-//         }
-
-// }
-// >
-// {/* TODO: Investigate why onCloseDevToolsPanel on Dialog doesn't close when clicked outside. */}
-// {/* i dont think we need a backdrop */}
-// {/* <OverlayBackdrop
-//   data-nextjs-devtools-panel-overlay-backdrop={isFullscreen}
-//   onClick={onCloseDevToolsPanel}
-// /> */}
-
-// </Overlay>

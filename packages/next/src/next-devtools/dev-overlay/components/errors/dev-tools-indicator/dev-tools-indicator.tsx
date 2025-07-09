@@ -3,8 +3,6 @@ import {
   ACTION_ERROR_OVERLAY_OPEN,
   ACTION_ERROR_OVERLAY_TOGGLE,
   STORAGE_KEY_POSITION,
-  type OverlayDispatch,
-  type OverlayState,
 } from '../../../shared'
 
 import { useState, useEffect, useRef, createContext, useContext } from 'react'
@@ -27,20 +25,15 @@ import {
 } from './dev-tools-info/preferences'
 import { Draggable } from './draggable'
 import { SegmentsExplorer } from './dev-tools-info/segments-explorer'
+import { useDevOverlayContext } from '../../../../dev-overlay.browser'
+import { useRenderErrorContext } from '../../../dev-overlay'
 
 // TODO: add E2E tests to cover different scenarios
 
 export function DevToolsIndicator({
-  state,
-  errorCount,
-  isBuildError,
-  ...props
+  scale,
+  setScale,
 }: {
-  state: OverlayState
-  dispatch: OverlayDispatch
-  errorCount: number
-  isBuildError: boolean
-
   scale: DevToolsScale
   setScale: (value: DevToolsScale) => void
 }) {
@@ -49,23 +42,15 @@ export function DevToolsIndicator({
 
   return (
     <DevToolsPopover
-      routerType={state.routerType}
-      semver={state.versionInfo.installed}
-      issueCount={errorCount}
-      isDevBuilding={state.buildingIndicator}
-      isDevRendering={state.renderingIndicator}
-      isStaticRoute={state.staticIndicator}
+      isDevToolsIndicatorVisible={isDevToolsIndicatorVisible}
+      scale={scale}
+      setScale={setScale}
       hide={() => {
         setIsDevToolsIndicatorVisible(false)
         fetch('/__nextjs_disable_dev_indicator', {
           method: 'POST',
         })
       }}
-      isTurbopack={!!process.env.TURBOPACK}
-      disabled={state.disableDevIndicator || !isDevToolsIndicatorVisible}
-      isBuildError={isBuildError}
-      page={state.page}
-      {...props}
     />
   )
 }
@@ -93,45 +78,34 @@ export type Overlays = (typeof OVERLAYS)[keyof typeof OVERLAYS]
 const INDICATOR_PADDING = 20
 
 function DevToolsPopover({
-  routerType,
-  disabled,
-  issueCount,
-  isDevBuilding,
-  isDevRendering,
-  isStaticRoute,
-  isTurbopack,
-  isBuildError,
   hide,
-  dispatch,
   scale,
   setScale,
-  page,
+  isDevToolsIndicatorVisible,
 }: {
-  routerType: 'pages' | 'app'
-  disabled: boolean
-  issueCount: number
-  isStaticRoute: boolean
-  semver: string | undefined
-  isDevBuilding: boolean
-  isDevRendering: boolean
-  isTurbopack: boolean
-  isBuildError: boolean
   hide: () => void
-  dispatch: OverlayDispatch
   scale: DevToolsScale
   setScale: (value: DevToolsScale) => void
-  page: string
+  isDevToolsIndicatorVisible: boolean
 }) {
+  const { state, dispatch } = useDevOverlayContext()
+  const routerType = state.routerType
+  const issueCount = useRenderErrorContext().totalErrorCount
+  const isDevBuilding = state.buildingIndicator
+  const isDevRendering = state.renderingIndicator
+  const isStaticRoute = state.staticIndicator
+  const isTurbopack = !!process.env.TURBOPACK
+  const disabled = state.disableDevIndicator || !isDevToolsIndicatorVisible
+  const page = state.page
+
   const menuRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
-
   const [open, setOpen] = useState<Overlays | null>(null)
   const [position, setPosition] = useState(getInitialPosition())
   const [selectedIndex, setSelectedIndex] = useState(-1)
 
   const isMenuOpen = open === OVERLAYS.Root
   const isTurbopackInfoOpen = open === OVERLAYS.Turbo
-  const isRouteInfoOpen = open === OVERLAYS.Route
   const isPreferencesOpen = open === OVERLAYS.Preferences
   const isSegmentExplorerOpen = open === OVERLAYS.SegmentExplorer
 
@@ -302,20 +276,13 @@ function DevToolsPopover({
           toggleErrorOverlay={toggleErrorOverlay}
           isDevBuilding={isDevBuilding}
           isDevRendering={isDevRendering}
-          isBuildError={isBuildError}
+          isBuildError={state.buildError !== null}
           scale={scale}
         />
       </Draggable>
 
       {/* Route Info */}
-      <RouteInfo
-        // isOpen={isRouteInfoOpen}
-        // close={closeToRootMenu}
-        // triggerRef={triggerRef}
-        // style={popover}
-        // routerType={routerType}
-        // routeType={isStaticRoute ? 'Static' : 'Dynamic'}
-      />
+      <RouteInfo />
 
       {/* Turbopack Info */}
       <TurbopackInfo

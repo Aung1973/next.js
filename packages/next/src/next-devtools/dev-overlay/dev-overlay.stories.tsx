@@ -49,6 +49,7 @@ export const Default: Story = {
     const [state, dispatch] = useStorybookOverlayReducer(initialState)
     return (
       <>
+      {/* get lots of real hard examples so we have better debug flows */}
         <img
           src={imgApp}
           style={{
@@ -65,20 +66,14 @@ export const Default: Story = {
             state,
           }}
         >
-          <DevOverlay
-          // state={state}
-          // dispatch={dispatch}
-          // getSquashedHydrationErrorDetails={
-          //   // Testing like App Router where we no longer quash hydration errors
-          //   getNoSquashedHydrationErrorDetails
-          // }
-          />
+          <DevOverlay />
         </DevOverlayContext>
       </>
     )
   },
 }
 
+// todo: fix story with "Context arg provider" wrapper
 export const WithPanel: Story = {
   beforeEach: () => {
     process.env.__NEXT_DEVTOOL_NEW_PANEL_UI = 'true'

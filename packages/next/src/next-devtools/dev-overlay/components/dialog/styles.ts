@@ -77,7 +77,7 @@ export const styles = css`
   }
 
   [data-nextjs-dialog-overlay] {
-    margin: 8px;
+    /* margin: 8px; */
   }
 
   [data-nextjs-dialog-overlay][data-rendered='true']

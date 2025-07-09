@@ -22,7 +22,13 @@ import {
   type DispatcherEvent,
 } from './dev-overlay/shared'
 
-import { createContext, startTransition, useContext, useInsertionEffect, type ActionDispatch } from 'react'
+import {
+  createContext,
+  startTransition,
+  useContext,
+  useInsertionEffect,
+  type ActionDispatch,
+} from 'react'
 import { createRoot } from 'react-dom/client'
 import { FontStyles } from './dev-overlay/font/font-styles'
 import type { HydrationErrorState } from './shared/hydration-error'
@@ -212,23 +218,20 @@ function DevOverlayRoot({
       <FontStyles />
       <DevOverlayContext
         value={{
-
-      dispatch,
-      getSquashedHydrationErrorDetails,
-      state,
-     }} 
+          dispatch,
+          getSquashedHydrationErrorDetails,
+          state,
+        }}
       >
-
-      <DevOverlay
-      />
+        <DevOverlay />
       </DevOverlayContext>
     </>
   )
 }
 export const DevOverlayContext = createContext<{
   state: OverlayState & {
-    routerType: "pages" | "app";
-},
+    routerType: 'pages' | 'app'
+  }
   dispatch: ActionDispatch<[action: DispatcherEvent]>
   getSquashedHydrationErrorDetails: (error: Error) => HydrationErrorState | null
 }>(null!)
