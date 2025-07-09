@@ -7,7 +7,6 @@ import { useState, useEffect, useRef } from 'react'
 import { DevToolsPanelFooter } from './devtools-panel-footer'
 import { DevToolsPanelTab } from './devtools-panel-tab/devtools-panel-tab'
 import { Dialog, DialogContent, DialogHeader, DialogBody } from '../dialog'
-import { Overlay } from '../overlay/overlay'
 import {
   ACTION_DEVTOOLS_PANEL_CLOSE,
   ACTION_DEVTOOLS_POSITION,
@@ -115,6 +114,14 @@ export function DevToolsPanel({
     dispatch({ type: ACTION_ERROR_OVERLAY_CLOSE })
   }
 
+  const ugStyle = !isFullscreen
+  ? {
+      [vertical]: `${INDICATOR_PADDING}px`,
+      [horizontal]: `${INDICATOR_PADDING}px`,
+      [vertical === 'top' ? 'bottom' : 'top']: 'auto',
+      [horizontal === 'left' ? 'right' : 'left']: 'auto',
+    }
+  : {}
   return (
     <ResizeProvider
       value={{
@@ -124,18 +131,15 @@ export function DevToolsPanel({
         devToolsPosition: state.devToolsPosition,
       }}
     >
-      <Overlay
+      <div
         ref={resizeRef}
         data-nextjs-devtools-panel-overlay
         style={
-          !isFullscreen
-            ? {
-                [vertical]: `${INDICATOR_PADDING}px`,
-                [horizontal]: `${INDICATOR_PADDING}px`,
-                [vertical === 'top' ? 'bottom' : 'top']: 'auto',
-                [horizontal === 'left' ? 'right' : 'left']: 'auto',
-              }
-            : {}
+          {
+            ...ugStyle,
+            overflow: 'auto',
+            position: 'absolute'
+         } 
         }
       >
         {/* TODO: Investigate why onCloseDevToolsPanel on Dialog doesn't close when clicked outside. */}
@@ -145,6 +149,10 @@ export function DevToolsPanel({
         />
 
         <Draggable
+          style={{
+  overflow:'auto'
+}}
+data-pussy
           data-nextjs-devtools-panel-draggable
           padding={INDICATOR_PADDING}
           onDragStart={() => {}}
@@ -158,15 +166,27 @@ export function DevToolsPanel({
           }}
           dragHandleSelector="[data-nextjs-devtools-panel-header], [data-nextjs-devtools-panel-footer]"
           disableDrag={isFullscreen}
+
         >
           <>
             <Dialog
+            
               data-nextjs-devtools-panel-dialog
               aria-labelledby="nextjs__container_dev_tools_panel_label"
               aria-describedby="nextjs__container_dev_tools_panel_desc"
               onClose={onCloseDevToolsPanel}
+            
+              style={{
+                overflow:'auto'
+              }}
             >
-              <DialogContent data-nextjs-devtools-panel-dialog-content>
+              <DialogContent
+               data-poopy
+                data-ball
+                style={{
+                  overflow: 'auto'
+                }}
+                data-nextjs-devtools-panel-dialog-content>
                 <DialogHeader data-nextjs-devtools-panel-dialog-header>
                   <div
                     data-nextjs-devtools-panel-header
@@ -264,7 +284,7 @@ export function DevToolsPanel({
             )}
           </>
         </Draggable>
-      </Overlay>
+      </div>
     </ResizeProvider>
   )
 }
@@ -289,7 +309,6 @@ export const DEVTOOLS_PANEL_STYLES = css`
   }
 
   [data-nextjs-devtools-panel-overlay] {
-    margin: auto;
     width: 525px;
     height: 375px;
   }
@@ -311,6 +330,7 @@ export const DEVTOOLS_PANEL_STYLES = css`
   }
 
   [data-nextjs-devtools-panel-dialog] {
+    /* overflow: auto; */
     -webkit-font-smoothing: antialiased;
     display: flex;
     flex-direction: column;

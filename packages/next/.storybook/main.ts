@@ -1,16 +1,16 @@
 import type { StorybookConfig } from '@storybook/react-webpack5'
 import { join, dirname, resolve } from 'path'
+import { fileURLToPath } from 'url'
+
 /**
  * This function is used to resolve the absolute path of a package.
  * It is needed in projects that use Yarn PnP or are set up within a monorepo.
  */
-
-import { createRequire } from 'module'
-const require = createRequire(import.meta.url)
-
 function getAbsolutePath(value: string): any {
   return dirname(require.resolve(join(value, 'package.json')))
 }
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
 
 const config: StorybookConfig = {
   stories: ['../src/next-devtools/**/*.stories.tsx'],
@@ -69,7 +69,7 @@ const config: StorybookConfig = {
           options: {
             injectType: 'styleTag',
             insert: resolve(
-              __dirname,
+              dirname(fileURLToPath(import.meta.url)),
               '../src/build/webpack/loaders/devtool/devtool-style-inject.js'
             ),
           },

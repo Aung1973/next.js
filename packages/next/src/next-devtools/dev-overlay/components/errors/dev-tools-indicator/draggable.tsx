@@ -28,6 +28,7 @@ export function Draggable({
   onDragStart?: () => void
   dragHandleSelector?: string
   disableDrag?: boolean
+  style?: React.CSSProperties
 }) {
   const { ref, animate, ...drag } = useDrag({
     disabled: disableDrag,
@@ -136,7 +137,13 @@ export function Draggable({
   }
 
   return (
-    <div {...props} ref={ref} {...drag} style={{ touchAction: 'none' }}>
+    <div
+      {...props}
+      data-fuck-shit
+      ref={ref}
+      {...drag}
+      style={{ touchAction: 'none', ...props.style }}
+    >
       {children}
     </div>
   )
@@ -239,18 +246,17 @@ export function useDrag(options: UseDragOptions) {
     }
 
     const element = target as Element
-    if (!element.matches) {
-      return false
-    }
+    // if (!element.matches) {
+    //   return false
+    // }
 
     // Check if the target element directly matches the drag handle selector
     // This excludes children elements, only allowing drag from the exact element
 
-
-    // NEW allow drag from everywhere, need to narrow this later
-    if (element.matches(options.dragHandleSelector)) {
-      return true
-    }
+    // // NEW allow drag from everywhere, need to narrow this later
+    // if (element.matches(options.dragHandleSelector)) {
+    //   return true
+    // }
 
     let parent = element.parentElement
     while (parent && parent !== ref.current) {
@@ -269,9 +275,9 @@ export function useDrag(options: UseDragOptions) {
     }
 
     // Check if the pointer down event is on a valid drag handle
-    if (!isValidDragHandle(e.target)) {
-      return
-    }
+    // if (!isValidDragHandle(e.target)) {
+    //   return
+    // }
 
     origin.current = { x: e.clientX, y: e.clientY }
     machine.current = { state: 'press' }

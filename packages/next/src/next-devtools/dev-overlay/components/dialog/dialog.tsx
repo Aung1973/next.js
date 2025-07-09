@@ -84,6 +84,7 @@ const Dialog: React.FC<DialogProps> = function Dialog({
 
   return (
     <div
+    data-fuckkkk
       ref={dialogRef}
       tabIndex={-1}
       data-nextjs-dialog

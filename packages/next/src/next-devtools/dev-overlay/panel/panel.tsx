@@ -63,6 +63,21 @@ export function DevOverlayPanel({
   //   dispatch({ type: ACTION_ERROR_OVERLAY_CLOSE })
   // }
 
+  const positionStyle =
+    `${vertical}-${horizontal}` === 'bottom-left'
+      ? {
+          bottom: '65px',
+          left: `${INDICATOR_PADDING}px`,
+          top: 'auto',
+          right: 'auto',
+        }
+      : {
+          [vertical]: `${INDICATOR_PADDING}px`,
+          [horizontal]: `${INDICATOR_PADDING}px`,
+          [vertical === 'top' ? 'bottom' : 'top']: 'auto',
+          [horizontal === 'left' ? 'right' : 'left']: 'auto',
+        }
+
   return (
     <ResizeProvider
       value={{
@@ -72,24 +87,21 @@ export function DevOverlayPanel({
         devToolsPosition: state.devToolsPosition,
       }}
     >
-      <Overlay
+      <div
         ref={resizeRef}
         data-nextjs-devtools-panel-overlay
-        style={
-          `${vertical}-${horizontal}` === 'bottom-left'
-            ? {
-                bottom: '40px',
-                // right: INDICATOR_PADDING,
-                top: 'auto',
-                right: 'auto',
-              }
-            : {
-                [vertical]: `${INDICATOR_PADDING}px`,
-                [horizontal]: `${INDICATOR_PADDING}px`,
-                [vertical === 'top' ? 'bottom' : 'top']: 'auto',
-                [horizontal === 'left' ? 'right' : 'left']: 'auto',
-              }
-        }
+        data-nextjs-dialog-overlay
+        data-gaga
+        // mf does this do anything, this does -> calc(100% + 8px)
+        style={{
+          ...positionStyle,
+          minWidth: '400px',
+          minHeight: '350px',
+          maxHeight: '1000px',
+          maxWidth: '1000px',
+          width: '100%',
+          height: '100%',
+        }}
       >
         <Draggable
           data-nextjs-devtools-panel-draggable
@@ -104,47 +116,25 @@ export function DevOverlayPanel({
             })
           }}
           dragHandleSelector="[data-nextjs-devtools-panel-header], [data-nextjs-devtools-panel-footer], [data-nextjs-devtools-panel-draggable]"
+          style={{
+            // so many border radius ah
+            borderRadius: 'var(--rounded-xl)',
+            overflow: 'auto',
+          }}
           // disableDrag={isFullscreen} <-- this will be useful later
         >
           <>
-            {/* this really isn't a dialog, not sure if this is the right component 
-         seems to be doing something so we shall leave it 
-          */}
-            <Dialog
-              data-nextjs-devtools-panel-dialog
-              aria-labelledby="nextjs__container_dev_tools_panel_label"
-              aria-describedby="nextjs__container_dev_tools_panel_desc"
-              onClose={onCloseDevToolsPanel}
+            <div
+              style={{
+                width: '100%',
+                height: '100%',
+                position: 'relative',
+                background: ' var(--color-background-200)',
+                borderRadius: 'var(--rounded-xl)',
+              }}
             >
-              <DialogContent
-                data-nextjs-devtools-panel-footer
-                data-nextjs-devtools-panel-draggable
-                data-nextjs-devtools-panel-dialog-content
-              >
-                <DialogHeader
-                  style={{
-                    width: '100%',
-                  }}
-                  data-nextjs-devtools-panel-dialog-header
-                >
-                  {header}
-                </DialogHeader>
-                <DialogBody
-                  style={{
-                    width: '100%',
-                  }}
-                  data-nextjs-devtools-panel-dialog-body
-                >
-                  {children}
-                </DialogBody>
-              </DialogContent>
-              {/* <DevToolsPanelFooter
-                versionInfo={state.versionInfo}
-                isDraggable={!isFullscreen}
-                showRestartServerButton={state.showRestartServerButton}
-              /> */}
-            </Dialog>
-
+              {children}
+            </div>
             <ResizeHandle direction="top" />
             <ResizeHandle direction="right" />
             <ResizeHandle direction="bottom" />
@@ -155,7 +145,7 @@ export function DevOverlayPanel({
             <ResizeHandle direction="bottom-right" />
           </>
         </Draggable>
-      </Overlay>
+      </div>
     </ResizeProvider>
   )
 }

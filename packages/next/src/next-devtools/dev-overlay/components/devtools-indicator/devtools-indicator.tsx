@@ -33,22 +33,22 @@ export function DevToolsIndicator() {
   return (
     // what is this toast doing??
     // why are u hiding my precious
-    // <Toast
-    //   data-nextjs-toast
-    //   style={
-    //     {
-    //       '--animate-out-duration-ms': `${MENU_DURATION_MS}ms`,
-    //       '--animate-out-timing-function': MENU_CURVE,
-    //       boxShadow: 'none',
-    //       [vertical]: `${INDICATOR_PADDING}px`,
-    //       [horizontal]: `${INDICATOR_PADDING}px`,
-    //       visibility:
-    //         state.isDevToolsPanelOpen || state.isErrorOverlayOpen
-    //           ? 'hidden'
-    //           : 'visible',
-    //     } as CSSProperties
-    //   }
-    // >
+    <Toast
+      data-nextjs-toast
+      style={
+        {
+          '--animate-out-duration-ms': `${MENU_DURATION_MS}ms`,
+          '--animate-out-timing-function': MENU_CURVE,
+          boxShadow: 'none',
+          [vertical]: `${INDICATOR_PADDING}px`,
+          [horizontal]: `${INDICATOR_PADDING}px`,
+          // visibility:
+          //   state.isDevToolsPanelOpen || state.isErrorOverlayOpen
+          //     ? 'hidden'
+          //     : 'visible' <-- todo add hiding,
+        } as CSSProperties
+      }
+    >
       <Draggable
         padding={INDICATOR_PADDING}
         // er i don't think this makes sense in the context of the refactor, come back to this
@@ -65,6 +65,6 @@ export function DevToolsIndicator() {
         {/* Trigger */}
         <NextLogo />
       </Draggable>
-    // </Toast>
+    </Toast>
   )
 }

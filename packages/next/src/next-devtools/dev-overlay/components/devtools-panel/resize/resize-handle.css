@@ -20,7 +20,7 @@
 
 /* start really fast because we start super hidden initially behind the panel, otherwise feels like an unintended animation delay */
 .resize-container:hover ~ .resize-line {
-  transition: transform 0.2s cubic-bezier(0.05, 0.9, 0.2, 1); /* Fast start for animate in */
+  transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .resize-container.right,
