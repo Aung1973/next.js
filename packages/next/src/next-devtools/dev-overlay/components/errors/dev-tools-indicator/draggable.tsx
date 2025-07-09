@@ -19,6 +19,7 @@ export function Draggable({
   onDragStart,
   dragHandleSelector,
   disableDrag = false,
+  avoidZone,
   ...props
 }: {
   children: React.ReactElement
@@ -29,6 +30,11 @@ export function Draggable({
   dragHandleSelector?: string
   disableDrag?: boolean
   style?: React.CSSProperties
+  avoidZone?: {
+    square: number
+    corner: Corners
+    padding: number
+  }
 }) {
   const { ref, animate, ...drag } = useDrag({
     disabled: disableDrag,

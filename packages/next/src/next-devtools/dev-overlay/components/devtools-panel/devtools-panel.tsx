@@ -115,13 +115,13 @@ export function DevToolsPanel({
   }
 
   const ugStyle = !isFullscreen
-  ? {
-      [vertical]: `${INDICATOR_PADDING}px`,
-      [horizontal]: `${INDICATOR_PADDING}px`,
-      [vertical === 'top' ? 'bottom' : 'top']: 'auto',
-      [horizontal === 'left' ? 'right' : 'left']: 'auto',
-    }
-  : {}
+    ? {
+        [vertical]: `${INDICATOR_PADDING}px`,
+        [horizontal]: `${INDICATOR_PADDING}px`,
+        [vertical === 'top' ? 'bottom' : 'top']: 'auto',
+        [horizontal === 'left' ? 'right' : 'left']: 'auto',
+      }
+    : {}
   return (
     <ResizeProvider
       value={{
@@ -134,13 +134,11 @@ export function DevToolsPanel({
       <div
         ref={resizeRef}
         data-nextjs-devtools-panel-overlay
-        style={
-          {
-            ...ugStyle,
-            overflow: 'auto',
-            position: 'absolute'
-         } 
-        }
+        style={{
+          ...ugStyle,
+          overflow: 'auto',
+          position: 'absolute',
+        }}
       >
         {/* TODO: Investigate why onCloseDevToolsPanel on Dialog doesn't close when clicked outside. */}
         <OverlayBackdrop
@@ -149,10 +147,16 @@ export function DevToolsPanel({
         />
 
         <Draggable
+          // logoCorner={state.devToolsPosition}
+          avoidZone={{
+            corner: state.devToolsPosition,
+            square: 20, // todo don't hard code these and they are probably wrong too
+            padding: 8,
+          }}
           style={{
-  overflow:'auto'
-}}
-data-pussy
+            overflow: 'auto',
+          }}
+          data-pussy
           data-nextjs-devtools-panel-draggable
           padding={INDICATOR_PADDING}
           onDragStart={() => {}}
@@ -166,27 +170,25 @@ data-pussy
           }}
           dragHandleSelector="[data-nextjs-devtools-panel-header], [data-nextjs-devtools-panel-footer]"
           disableDrag={isFullscreen}
-
         >
           <>
             <Dialog
-            
               data-nextjs-devtools-panel-dialog
               aria-labelledby="nextjs__container_dev_tools_panel_label"
               aria-describedby="nextjs__container_dev_tools_panel_desc"
               onClose={onCloseDevToolsPanel}
-            
               style={{
-                overflow:'auto'
+                overflow: 'auto',
               }}
             >
               <DialogContent
-               data-poopy
+                data-poopy
                 data-ball
                 style={{
-                  overflow: 'auto'
+                  overflow: 'auto',
                 }}
-                data-nextjs-devtools-panel-dialog-content>
+                data-nextjs-devtools-panel-dialog-content
+              >
                 <DialogHeader data-nextjs-devtools-panel-dialog-header>
                   <div
                     data-nextjs-devtools-panel-header
